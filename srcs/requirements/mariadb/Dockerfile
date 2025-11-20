@@ -1,3 +1,4 @@
+# Description: MariaDB Dockerfile
 
 # pull the base image
 FROM debian:bookworm
@@ -9,7 +10,7 @@ RUN apt-get update && apt-get upgrade -y
 RUN apt-get install -y mariadb-server netcat
 
 # copy file from host to container
-COPY ./mdb-conf.sh /mdb-conf.sh
+COPY ./conf/mdb-conf.sh /mdb-conf.sh
 
 # set permission to the file
 RUN chmod +x /mdb-conf.sh
