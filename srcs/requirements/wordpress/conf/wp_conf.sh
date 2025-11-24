@@ -22,3 +22,13 @@ wp core download --allow-root
 wp core config --dbhost=mariadb:3306 --dbname="$MYSQL_DB" --dbuser="$MYSQL_USER" --dbpass="$MYSQL_PASSWORD" --allow-root
 # install wordpress with the given title, admin username, password and email
 wp core install --url="$DOMAIN_NAME" --title="$WP_ADMIN_N" --admin_password="$WP_ADMIN_P" --admin_email="$WP_ADMIN_E" --allow-root
+# create a new user with the given username, email, password and role
+wp user create "$WP_U_NAME" "$WP_U_EMAIL" --user_pass="$WP_U_PASS" --role="$WP_U_ROLE" --allow-root
+
+#+++++ PHP CONFIG +++++#
+# change listen port from unix socket to 9000
+sed -i '36 s@/run/php/php8.4-fpm.sock@9000@' /etc/php/8.4/fpm/pool.d/www.conf
+# create a directory for php-fpm
+mkdir -p /run/php
+# start php-fpm service in the foreground to keep container running
+/usr/sbin/php-fpm8.4 -F
