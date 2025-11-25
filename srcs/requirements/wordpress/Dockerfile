@@ -14,12 +14,12 @@ RUN mkdir -p /var/www/wordpress /run/php && \
 RUN sed -i 's|listen = /run/php/php8.2-fpm.sock|listen = 9000|g' /etc/php/8.2/fpm/pool.d/www.conf
 
 # copy the wordpress config script to the root directory of the container
-COPY ./conf/wp_conf.sh /
+COPY ./conf/wp_conf.sh /wp_conf.sh
 
 # change the permission of the script to make it executable
-RUN chmod +x wp_conf.sh
+RUN chmod +x /wp_conf.sh
 
 WORKDIR /var/www/wordpress
 
 #define the entrypoint command to run when the container starts
-ENTRYPOINT ["./wp_conf.sh"]
+ENTRYPOINT ["/wp_conf.sh"]

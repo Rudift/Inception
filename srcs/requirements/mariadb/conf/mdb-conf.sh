@@ -30,4 +30,4 @@ kill "$pid"
 wait "$pid"
 
 # Start foreground MariaDB
-exec mariadb --user=mysql --console --bind-adress=0.0.0.0
+exec mariadbd --user=mysql --bind-address=0.0.0.0
