@@ -1,42 +1,55 @@
-WP_DATA = /home/data/wordpress #define the path to the wordpress data
-DB_DATA = /home/data/mariadb #define the path to the mariadb data
+DOMAIN_NAME = vdeliere.42.fr
+HOSTS_LINE = 127.0.0.1 $(DOMAIN_NAME)
+DATA_DIR = /home/data
+
+WP_DATA = $(DATA_DIR)/wordpress
+DB_DATA = $(DATA_DIR)/mariadb
 
 # default target
-all: up
+all: setup up
+
+# setup the environment
+setup:
+	@if ! grep -q "$(DOMAIN_NAME)" /etc/hosts; then \
+		echo "$(HOSTS_LINE)" | sudo tee -a /etc/hosts > /dev/null; \
+		echo "✅ Added $(DOMAIN_NAME) to /etc/hosts"; \
+	else \
+		echo "✅ $(DOMAIN_NAME) already in /etc/hosts"; \
+	fi
+	@mkdir -p $(DB_DATA) $(WP_DATA)
+	@echo "✅ Data directories created"
 
 # start the building process
-# create the wordpress and mariadb data directories
-# start the containers in the background and leaves them running
-up: build
-	@mkdir -p $(WP_DATA)
-	@mkdir -p $(DB_DATA)
-	docker compose -f ./srcs/docker-compose.yml up -d
+up: setup
+	docker compose -f srcs/docker-compose.yml up -d --build
 
 # stop the containers
 down:
-	docker compose -f ./srcs/docker-compose.yml down
+	docker compose -f srcs/docker-compose.yml down
+
 stop:
-	docker compose -f ./srcs/docker-compose.yml stop
+	docker compose -f srcs/docker-compose.yml stop
 
 start:
-	docker compose -f ./srcs/docker-compose.yml start
+	docker compose -f srcs/docker-compose.yml start
 
-# build the containers
-build:
-	docker compose -f ./srcs/docker-compose.yml build
 # clean the containers
-clean:
-	@docker stop $$(docker ps -qa) || true
-	@docker rm $$(docker ps -qa) || true
-	@docker rmi $$(docker images -qa) || true
-	@docker volume rm $$(docker volume ls -q) || true
-	@docker network rm $$(docker network ls -q) || true
-	@rm -rf $(WP_DATA) || true
-	@rm -rf $(DB_DATA) || true
+clean: down
+	docker system prune -af
+	rm -rf $(DB_DATA)/* $(WP_DATA)/*
+
+fclean: clean
+	docker volume rm -f mariadb wordpress 2>/dev/null || true
+	docker network rm -f inception 2>/dev/null || true
+	@if grep -q "$(DOMAIN_NAME)" /etc/hosts; then \
+		sudo sed -i "/$(DOMAIN_NAME)/d" /etc/hosts; \
+		echo "✅ Removed $(DOMAIN_NAME) from /etc/hosts"; \
+	fi
 
 # clean and start the containers
-re: clean up
+re: fclean all
 
-# prune the containers: execute the clean target and remove all containers, images, volumes from the system
-prune: clean
-	@docker system prune -a --volumes -f
+logs:
+	docker compose -f srcs/docker-compose.yml logs -f
+
+.PHONY: all setup up down clean fclean re logs stop start

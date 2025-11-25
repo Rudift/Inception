@@ -1,22 +1,33 @@
 #!/bin/bash
 
-#++++++ mariadb start ++++++#
-service mariadb start # start mariadb
-sleep 5 # wait for mariadb to start
+# Create the socket directory
+mkdir -p /var/run/mysqld
+chown -R mysql:mysql /var/run/mysqld
 
-#+++++ mariadb config +++++#
-# Create database if not exists
-mariadb -e "CREATE DATABASE IF NOT EXIST \`${MYSQL_DB}\`";
+# Init the database if necessary
+if [ ! -d "/var/lib/mysql/mysql" ]; then
+    mariadb-install-db --user=mysql --datadir=/var/lib/mysql
+fi
 
-# Create user if not exists
-mariadb -e "GRANT ALL PRIVILEGES ON ${MYSQL_DB}.* TO \`${MYSQL_USER}\`@'%';"
+# Start the MariaDB server
+mariadbd --user=mysql --skip-networking &
+pid="$!"
 
-# Flush privileges to apply changes
-mariadb -e "FLUSH PRIVILEGES;"
+# Waiting MariaDB to start
+sleep 5
 
-#+++++ mariadb restart +++++#
-# Shutdown mariadb to restart with new config
-mysqladmin -u root -p$MYSQL_ROOT_PASSWORD shutdown
+# Creating the base and the user
+mariadb -u root << EOF
+CREATE DATABASE IF NOT EXISTS \`${MYSQL_DB}\`;
+CREATE USER IF NOT EXISTS '${MYSQL_USER}'@'%' IDENTIFIED BY '${MYSQL_PASSWORD}';
+GRANT ALL PRIVILEGES ON \`${MYSQL_DB}\`.* TO '${MYSQL_USER}'@'%';
+ALTER USER 'root'@'localhost' IDENTIFIED BY '${MYSQL_ROOT_PASSWORD}';
+FLUSH PRIVILEGES;
+EOF
 
-# Restart mariadb with new config in the background to keep the container running
-mysqld_safe --port=3306 --bind-address=0.0.0.0 --datadir='/var/lib/mysql'
+# Stop the temporary process
+kill "$pid"
+wait "$pid"
+
+# Start foreground MariaDB
+exec mariadb --user=mysql --console --bind-adress=0.0.0.0

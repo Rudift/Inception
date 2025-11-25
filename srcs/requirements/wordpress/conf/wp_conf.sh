@@ -1,34 +1,46 @@
 #!/bin/bash
 
-#+++++ WP-CLI INSTALLATION +++++#
-# wp-cli installation
-curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
-# wp-cli permission
-chmod +x wp-cli.phar
-# move wp-cli to bin
-mv wp-cli.phar /usr/local/bin/wp
+# Attendre que MariaDB soit prêt
+sleep 10
 
-# go to wordpress directory
+# Aller dans le répertoire WordPress
 cd /var/www/wordpress
-# give permission to wordpress directory
-chmod -R 755 /var/www/wordpress/
-# change owner of wordpress directory to www-data
-chown -R www-data /var/www/wordpress
 
-#+++++ WP INSTALLATION +++++#
-# download wordpress core files
-wp core download --allow-root
-# create wp-config.php file with database deatils
-wp core config --dbhost=mariadb:3306 --dbname="$MYSQL_DB" --dbuser="$MYSQL_USER" --dbpass="$MYSQL_PASSWORD" --allow-root
-# install wordpress with the given title, admin username, password and email
-wp core install --url="$DOMAIN_NAME" --title="$WP_ADMIN_N" --admin_password="$WP_ADMIN_P" --admin_email="$WP_ADMIN_E" --allow-root
-# create a new user with the given username, email, password and role
-wp user create "$WP_U_NAME" "$WP_U_EMAIL" --user_pass="$WP_U_PASS" --role="$WP_U_ROLE" --allow-root
+# Télécharger WP-CLI
+if [ ! -f /usr/local/bin/wp ]; then
+    curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
+    chmod +x wp-cli.phar
+    mv wp-cli.phar /usr/local/bin/wp
+fi
 
-#+++++ PHP CONFIG +++++#
-# change listen port from unix socket to 9000
-sed -i '36 s@/run/php/php8.4-fpm.sock@9000@' /etc/php/8.4/fpm/pool.d/www.conf
-# create a directory for php-fpm
-mkdir -p /run/php
-# start php-fpm service in the foreground to keep container running
-/usr/sbin/php-fpm8.4 -F
+# Installer WordPress si pas déjà fait
+if [ ! -f wp-config.php ]; then
+    # Télécharger WordPress
+    wp core download --allow-root
+    
+    # Créer la configuration
+    wp config create \
+        --dbname=$MYSQL_DB \
+        --dbuser=$MYSQL_USER \
+        --dbpass=$MYSQL_PASSWORD \
+        --dbhost=mariadb:3306 \
+        --allow-root
+    
+    # Installer WordPress
+    wp core install \
+        --url=https://$DOMAIN_NAME \
+        --title="$WP_TITLE" \
+        --admin_user=$WP_ADMIN_N \
+        --admin_password=$WP_ADMIN_P \
+        --admin_email=$WP_ADMIN_E \
+        --allow-root
+    
+    # Créer un utilisateur
+    wp user create $WP_U_NAME $WP_U_EMAIL \
+        --role=$WP_U_ROLE \
+        --user_pass=$WP_U_PASS \
+        --allow-root
+fi
+
+# Démarrer PHP-FPM
+exec php-fpm8.2 -F -R
