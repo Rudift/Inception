@@ -43,7 +43,7 @@ services:
     volumes:
       - wordpress:/var/www/wordpress
     env_file:
-      -.env 
+      - .env
     networks:
       - inception
     restart: always

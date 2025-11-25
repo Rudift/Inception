@@ -10,22 +10,20 @@ all: up
 up: build
 	@mkdir -p $(WP_DATA)
 	@mkdir -p $(DB_DATA)
-	docker-compose -f ./docker-compose.yml up -d
+	docker compose -f ./srcs/docker-compose.yml up -d
 
 # stop the containers
 down:
-	docker-compose -f ./docker-compose.yml down
-
+	docker compose -f ./srcs/docker-compose.yml down
 stop:
-	docker-compose -f ./docker-compose.yml stop
+	docker compose -f ./srcs/docker-compose.yml stop
 
 start:
-	docker-compose -f ./docker-compose.yml start
+	docker compose -f ./srcs/docker-compose.yml start
 
 # build the containers
 build:
-	docker-compose -f ./docker-compose.yml build
-
+	docker compose -f ./srcs/docker-compose.yml build
 # clean the containers
 clean:
 	@docker stop $$(docker ps -qa) || true

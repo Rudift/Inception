@@ -4,10 +4,9 @@
 FROM debian:bookworm
 
 # update and upgrade the systeme
-RUN apt-get update && apt-get upgrade -y
-
-# # install the required packages
-RUN apt-get install -y mariadb-server netcat
+RUN apt-get update && apt-get upgrade -y && \
+    apt-get install -y mariadb-server netcat-openbsd && \
+    rm -rf /var/lib/apt/lists/*
 
 # copy file from host to container
 COPY ./conf/mdb-conf.sh /mdb-conf.sh
