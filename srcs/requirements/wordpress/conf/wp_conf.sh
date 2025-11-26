@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# Read the secrets from /run/secrets/
+DB_USER=$(cat /run/secrets/db_user)
+DB_PASSWORD=$(cat /run/secrets/db_password)
+WP_ADMIN_USER=$(cat /run/secrets/wp_admin_user)
+WP_ADMIN_PASSWORD=$(cat /run/secrets/wp_admin_PASSWORD)
+
 # Attendre que MariaDB soit prêt
 sleep 10
 
@@ -20,18 +26,18 @@ if [ ! -f wp-config.php ]; then
     
     # Créer la configuration
     wp config create \
-        --dbname=$MYSQL_DB \
-        --dbuser=$MYSQL_USER \
-        --dbpass=$MYSQL_PASSWORD \
+        --dbname="${MYSQL_DB}" \
+        --dbuser="${MYSQL_USER}" \
+        --dbpass="${MYSQL_PASSWORD}" \
         --dbhost=mariadb:3306 \
         --allow-root
     
     # Installer WordPress
     wp core install \
-        --url=https://$DOMAIN_NAME \
+        --url="${DOMAIN_NAME}" \
         --title="$WP_TITLE" \
-        --admin_user=$WP_ADMIN_N \
-        --admin_password=$WP_ADMIN_P \
+        --admin_user="${WP_ADMIN_USER}" \
+        --admin_password="${WP_ADMIN_PASSWORD}" \
         --admin_email=$WP_ADMIN_E \
         --allow-root
     

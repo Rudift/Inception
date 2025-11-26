@@ -8,6 +8,10 @@ services:
       - mariadb:/var/lib/mysql
     env_file :
       - .env 
+    secrets:
+      - db_password
+      - db_user
+      - db_root_password
     networks :
       - inception
     restart: always
@@ -45,6 +49,11 @@ services:
       - wordpress:/var/www/wordpress
     env_file:
       - .env
+    secrets :
+      - db_user
+      - db_password
+      - wp_admin_password
+      - wp_admin_user
     networks:
       - inception
     restart: always
@@ -70,3 +79,16 @@ volumes:
 networks:
   inception:
     name: inception
+
+# the secrets part
+secrets:
+  db_user:
+    file: ../secrets/db_user.txt
+  db_password:
+    file: ../secrets/db_password.txt
+  db_root_password:
+    file: ../secrets/db_root_password.txt
+  wp_admin_password:
+    file: ../secrets/wp_admin_password.txt
+  wp_admin_user:
+    file: ../secrets/wp_admin_user.txt

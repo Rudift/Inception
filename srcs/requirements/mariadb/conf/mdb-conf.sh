@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# Read the secrets from /run/secrets/
+MYSQL_USER=$(cat /run/secrets/db_user)
+MYSQL_PASSWORD=$(cat /run/secrets/db_user)
+MYSQL_ROOT_PASSWORD=$(cat /run/secrets/db_root_password)
+
 # Create the socket directory
 mkdir -p /var/run/mysqld
 chown -R mysql:mysql /var/run/mysqld
