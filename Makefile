@@ -1,6 +1,6 @@
 DOMAIN_NAME = vdeliere.42.fr
 HOSTS_LINE = 127.0.0.1 $(DOMAIN_NAME)
-DATA_DIR = /home/data
+DATA_DIR = /home/valentin/data
 
 WP_DATA = $(DATA_DIR)/wordpress
 DB_DATA = $(DATA_DIR)/mariadb
