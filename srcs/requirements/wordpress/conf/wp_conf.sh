@@ -4,7 +4,7 @@
 DB_USER=$(cat /run/secrets/db_user)
 DB_PASSWORD=$(cat /run/secrets/db_password)
 WP_ADMIN_USER=$(cat /run/secrets/wp_admin_user)
-WP_ADMIN_PASSWORD=$(cat /run/secrets/wp_admin_PASSWORD)
+WP_ADMIN_PASSWORD=$(cat /run/secrets/wp_admin_password)
 
 # Attendre que MariaDB soit prêt
 sleep 10
@@ -27,24 +27,24 @@ if [ ! -f wp-config.php ]; then
     # Créer la configuration
     wp config create \
         --dbname="${MYSQL_DB}" \
-        --dbuser="${MYSQL_USER}" \
-        --dbpass="${MYSQL_PASSWORD}" \
+        --dbuser="${DB_USER}" \
+        --dbpass="${DB_PASSWORD}" \
         --dbhost=mariadb:3306 \
         --allow-root
     
     # Installer WordPress
     wp core install \
         --url="${DOMAIN_NAME}" \
-        --title="$WP_TITLE" \
+        --title="${WP_TITLE}" \
         --admin_user="${WP_ADMIN_USER}" \
         --admin_password="${WP_ADMIN_PASSWORD}" \
-        --admin_email=$WP_ADMIN_E \
+        --admin_email="${WP_ADMIN_EMAIL}" \
         --allow-root
     
     # Créer un utilisateur
-    wp user create $WP_U_NAME $WP_U_EMAIL \
-        --role=$WP_U_ROLE \
-        --user_pass=$WP_U_PASS \
+    wp user create "${WP_U_NAME}" "${WP_U_EMAIL}" \
+        --role="{$WP_U_ROLE}" \
+        --user_pass="{$WP_U_PASS}" \
         --allow-root
 fi
 
