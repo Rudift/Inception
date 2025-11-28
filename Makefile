@@ -36,7 +36,12 @@ start:
 # clean the containers
 clean: down
 	docker system prune -af
-	rm -rf $(DB_DATA)/* $(WP_DATA)/*
+	@if [ -d "$(DB_DATA)" ] && [ -n "$$(ls -A $(DB_DATA))" ]; then \
+    	docker run --rm -v $(DB_DATA):/data alpine rm -rf /data/*; \
+    fi
+	@if [ -d "$(WP_DATA)" ] && [ -n "$$(ls -A $(WP_DATA))" ]; then \
+    	docker run --rm -v $(WP_DATA):/data alpine rm -rf /data/*; \
+    fi
 
 fclean: clean
 	docker volume rm -f mariadb wordpress 2>/dev/null || true
