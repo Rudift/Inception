@@ -9,6 +9,7 @@ services:
     env_file :
       - .env 
     secrets:
+      - db_name
       - db_password
       - db_user
       - db_root_password
@@ -85,6 +86,8 @@ networks:
 
 # the secrets part
 secrets:
+  db_name:
+    file: ../secrets/db_name.txt
   db_user:
     file: ../secrets/db_user.txt
   db_password:
