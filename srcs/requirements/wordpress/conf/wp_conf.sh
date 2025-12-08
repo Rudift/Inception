@@ -43,8 +43,8 @@ if [ ! -f wp-config.php ]; then
     
     # User creation
     wp user create "${WP_U_NAME}" "${WP_U_EMAIL}" \
-        --role="{$WP_U_ROLE}" \
-        --user_pass="{$WP_U_PASS}" \
+        --role="${WP_U_ROLE}" \
+        --user_pass="${WP_U_PASS}" \
         --allow-root
 fi
 

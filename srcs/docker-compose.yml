@@ -51,6 +51,15 @@ services:
       - wordpress:/var/www/wordpress
     env_file:
       - .env
+    environment:
+      - MYSQL_DB=${MYSQL_DB}
+      - DOMAIN_NAME=${DOMAIN_NAME}
+      - WP_TITLE=${WP_TITLE}
+      - WP_ADMIN_EMAIL=${WP_ADMIN_EMAIL}
+      - WP_U_NAME=${WP_U_NAME}
+      - WP_U_PASS=${WP_U_PASS}
+      - WP_U_ROLE=${WP_U_ROLE}
+      - WP_U_EMAIL=${WP_U_EMAIL}
     secrets :
       - db_user
       - db_password
