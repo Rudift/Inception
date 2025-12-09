@@ -5,6 +5,7 @@ DB_USER=$(cat /run/secrets/db_user)
 DB_PASSWORD=$(cat /run/secrets/db_password)
 WP_ADMIN_USER=$(cat /run/secrets/wp_admin_user)
 WP_ADMIN_PASSWORD=$(cat /run/secrets/wp_admin_password)
+WP_U_PASS=$(cat /run/secrets/wp_user_password)
 
 # Wait for MariaDB to be ready
 sleep 10
